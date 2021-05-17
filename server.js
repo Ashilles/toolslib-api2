@@ -14,17 +14,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(helmet()); // Seurity plugin
 app.use(cors()); // CORS
-app.use(
-  rateLimit({
-    windowMs: 60 * 1000,
-    max: 10,
-    message: {status: "fail", body: { errors: [{message: "Please wait few minutes before trying again"}]}}
-  })
-);
+// app.use(
+//   rateLimit({
+//     windowMs: 60 * 1000,
+//     max: 10,
+//     message: {status: "fail", body: { errors: [{message: "Please wait few minutes before trying again"}]}}
+//   })
+// );
 
 const mysql = require("./db/connect.js");
 
-const port = 8080;
+const port = 8081;
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -44,9 +44,16 @@ app.use((req, res, next)=> {
     res.header("Access-Control-Allow-Origin", "https://toolslib.co");
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.header("Content-Type", "application/json");
-
-    // res.header("", "");
-  	consola.info(`[${app.getDate().getHours() + ":" + app.getDate().getMinutes() + ":" + app.getDate().getSeconds() + " " +app.getDate().getMonth()+1 + "/" + app.getDate().getDate() + "/" + app.getDate().getFullYear()}] [${req.method}] - [${app.getIP()}] => [${req.baseUrl + req.path}] `);
+    consola.info(`\x1b[1m\x1b[30m`+``.padStart(64, "―")+`\x1b[0m`);
+    if(req.method == "POST") {
+    	consola.info(`[${mysql.getDate()}] [\x1b[1m\x1b[36m${req.method}\x1b[0m] - [\x1b[1m\x1b[37m${app.getIP()}\x1b[0m]   =>  [\x1b[1m\x1b[33m${req.baseUrl + req.path}\x1b[0m]`);
+    }
+    else if(req.method == "GET") {
+    	consola.info(`[${mysql.getDate()}] [\x1b[36m${req.method}\x1b[0m]  - [\x1b[1m\x1b[37m${app.getIP()}\x1b[0m]   =>  [\x1b[1m\x1b[33m${req.baseUrl + req.path}\x1b[0m]`);
+    }
+    else {
+    	consola.info(`[${mysql.getDate()}] [\x1b[36m${req.method}\x1b[0m]  - [\x1b[1m\x1b[37m${app.getIP()}\x1b[0m]   =>  [\x1b[1m\x1b[33m${req.baseUrl + req.path}\x1b[0m]`);
+    }
     let fullPath = req.baseUrl + req.path;
     let headers = req.headers;
     let regs = new RegExp("[0-9]*")
@@ -64,21 +71,17 @@ app.use((req, res, next)=> {
         res.status(403).json({status: "failed",body: { errors: [{message: "Invaild access token"}]}})
       })
 
-
-
-
     } else {
       res.status(401).json({status: "failed", body: { errors: [{message: "Missing access token"}]}})
     }
+});
 
-
-})
 app.use("/", require("./routes"));
 
 app.listen(port, async () => {
   console.log(`API is listening at ${port}`);
   // let {username, password, token, ip, email} = settings;
-  console.log(await mysql.deleteUser("7htmzepajdfgzaxlr4b4e5zmenvaoadac91dws4b"));
+  console.log(await mysql.hash(""));
 
 
 });

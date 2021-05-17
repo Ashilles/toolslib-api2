@@ -9,10 +9,13 @@ let goodResponse = {status: "ok", body: {errors: [], user: {}}}
 
 router.get("/", (req, res) => {
   let token = req.headers["x-accesstoken"];
-  mysql.getUserByToken(token, ["LOWER(username) as username", 'email', 'last_login', 'created_at'])
+  mysql.getUserByToken(token, ["LOWER(username) as username", 'email', 'last_login', 'created_at', 'name', 'bio', 'ip'])
   .then(rows => {
     goodResponse.body.user = rows[0];
-    res.json(goodResponse);
+    // bcrypt.genSalt(10, (err, resl) => {
+    //   goodResponse.body.salt = resl
+    // });
+    res.status(201).json(goodResponse);
   })
   .catch(err => {
     return res.status(401).json(badResponse);

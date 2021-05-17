@@ -18,14 +18,15 @@ router.post("/", (req, res) => {
     bcrypt.compare(password, rows[0].password, function(err, result) {
       if(result) {
         goodResponse.body.token = rows[0].token
-        res.json(goodResponse);
         mysql.updateUser({last_login: mysql.getDate(), ip}, rows[0].token)
+        res.json(goodResponse);
       } else {
         return res.status(400).json(badResponse);
       }
     });
   })
-  .catch(err => {
+  .catch(async err => {
+    badUsernameResponse.body.message = await mysql.getAllUsers();
     return res.status(400).json(badUsernameResponse);
   });
 });

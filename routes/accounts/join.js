@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
       goodResponse.body.token = token;
       res.json(goodResponse);
     })
-    .catch(err => res.json(400).status(err))
+    .catch(err => res.status(400).json(err))
 
   });
 });
@@ -55,7 +55,18 @@ function ValidateUsername(username) {
         return false;
       }
     });
+    let lowerRange = 31, upperRange = 126;
+    for (const c in username.split("")) {
+      const asciiCode = username.charCodeAt(c)
+      const isCharValid = asciiCode > lowerRange && asciiCode < upperRange
+      if(!isCharValid) return false
+    }
 
+    let symbols = '~`!@#$%^&*()_-+={[}]|:;<,>.?/';
+    let res = 0
+    for (const c of username.split("")) {
+      if(symbols.includes(c)) return false;
+    }
     return true;
   }
     return false;
